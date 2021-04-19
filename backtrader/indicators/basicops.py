@@ -364,6 +364,9 @@ class Average(PeriodN):
             dst[i] = math.fsum(src[i - period + 1:i + 1]) / period
 
 
+
+
+
 class ExponentialSmoothing(Average):
     '''
     Averages a given data over a period using exponential smoothing
