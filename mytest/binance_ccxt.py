@@ -1,9 +1,12 @@
 import ccxt
+import time
 
 binance_exchange = ccxt.binance({
     'countries': ['CN'],
     'timeout': 15000,
     'enableRateLimit': True,
+    'apiKey': "9M5drzI3MN4UmHwA1CNU5OBxV0kzkuD7cvm1nCeuzGmqP5NXv6B5PRlLZlo7xIYk",
+    'secret': "CuhJcXIeUQHvmFGiVQ7fM8b6807A4L3GlriLk01VwxHPhpKARR3AKzfikaikPjAV",
     # 'proxies': {
     #     'http': 'http://106.53.38.69:3128',
     #     'https': 'https://106.53.38.69:3128',
@@ -22,7 +25,7 @@ binance_exchange = ccxt.binance({
             'v1': 'https://testnet.binance.vision/api/v1',
         },
         'api': {
-            'wapi': 'https://api.binancezh.co/wapi/v3',
+            'wapi': 'https://api.binance.com/wapi/v3',
             'sapi': 'https://api.binancezh.co/sapi/v1',
             'dapiPublic': 'https://dapi.binance.com/dapi/v1',
             'dapiPrivate': 'https://dapi.binance.com/dapi/v1',
@@ -47,7 +50,27 @@ binance_exchange = ccxt.binance({
 })
 
 #载入市场清单
-markets = binance_exchange.load_markets()
-print(markets)
+# markets = binance_exchange.load_markets()
+# print(markets)
 
-print(binance_exchange.fetch_tickers(['BTC/USDT', 'ETH/USDT']))
+# print(binance_exchange.fetch_tickers(['BTC/USDT', 'ETH/USDT']))
+
+# binance_exchange.apiKey="9M5drzI3MN4UmHwA1CNU5OBxV0kzkuD7cvm1nCeuzGmqP5NXv6B5PRlLZlo7xIYk"
+# binance_exchange.secret="CuhJcXIeUQHvmFGiVQ7fM8b6807A4L3GlriLk01VwxHPhpKARR3AKzfikaikPjAV"
+
+timestamp = binance_exchange.publicGetTime()
+print(timestamp)
+
+stamp=time.mktime(time.strptime('2021-04-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
+
+transferList = binance_exchange.sapiGetFuturesTransfer({
+    'timestamp':timestamp['serverTime'],
+    'asset':'USDT',
+    'startTime':int(stamp),
+    # 'type':1
+    })
+
+for transfer in transferList['rows']:
+    if transfer['type'] == '2': #划转方向: 1( 现货向USDT本位合约), 2( USDT本位合约向现货), 3( 现货向币本位合约), and 4( 币本位合约向现货)
+        timeArray = time.localtime(int(transfer['timestamp'][:-3]))
+        print(time.strftime("%Y-%m-%d %H:%M:%S", timeArray),">>>>",transfer)
